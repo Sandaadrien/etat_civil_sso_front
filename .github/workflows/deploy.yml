@@ -1,0 +1,89 @@
+
+name: Deploy Etat Civil Frontend SSO
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          ping: ${{ secrets.TAILSCALE_HOST }}
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SERVER_IP: ${{ secrets.TAILSCALE_HOST }}
+          SERVER_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat > ~/.ssh/config <<EOF
+          Host school
+            HostName $SERVER_IP
+            User $SERVER_USER
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking accept-new
+          EOF
+
+          chmod 600 ~/.ssh/config
+
+      - name: Test SSH connection
+        run: |
+          ssh school "hostname && docker --version"
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t etat-civil-frontend-sso:${{ github.sha }} \
+            .
+
+      - name: Transfer Docker image
+        run: |
+          docker save etat-civil-frontend-sso:${{ github.sha }} \
+            | ssh school "docker load"
+
+      - name: Transfer Docker Compose
+        run: |
+          ssh school "mkdir -p /home/cloud/apps/etat-civil-frontend-sso"
+
+          scp compose.prod.yml \
+            school:/home/cloud/apps/etat-civil-frontend-sso/compose.prod.yml
+
+      - name: Deploy frontend
+        run: |
+          ssh school "
+            cd /home/cloud/apps/etat-civil-frontend-sso &&
+            IMAGE_TAG=${{ github.sha }} \
+            docker compose -f compose.prod.yml up -d --no-deps frontend
+          "
+
+      - name: Verify deployment
+        env:
+          SERVER_IP: ${{ secrets.TAILSCALE_HOST }}
+        run: |
+          ssh school "
+            cd /home/cloud/apps/etat-civil-frontend-sso &&
+            IMAGE_TAG=${{ github.sha }} \
+            docker compose -f compose.prod.yml ps &&
+            curl --fail --silent --show-error http://${SERVER_IP}:15174/ > /dev/null
+          "
+
