@@ -1,20 +1,9 @@
+name: etat-civil-frontend-sso
+
 services:
-  sso-frontend:
-    container_name: etat-civil-sso-frontend
-    build:
-      context: .
-      dockerfile: Dockerfile
+  frontend:
+    image: etat-civil-frontend-sso:${IMAGE_TAG:-latest}
     restart: unless-stopped
+
     ports:
       - "100.101.128.43:15174:80"
-    networks:
-      - default
-      - proxy
-
-networks:
-  default:
-    driver: bridge
-
-  proxy:
-    external: true
-    name: ivoara-network
