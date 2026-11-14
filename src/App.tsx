@@ -1,27 +1,17 @@
-import { useEffect, useState } from 'react'
-import ConsentPage from './pages/ConsentPage'
-import SignInPage from './pages/SignInPage'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-function App() {
-  const [pathname, setPathname] = useState(window.location.pathname)
+import SignInPage from "./pages/SignInPage";
+import ConsentPage from "./pages/ConsentPage";
 
-  useEffect(() => {
-    const handlePopState = () => setPathname(window.location.pathname)
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/sign-in" element={<SignInPage />} />
+        <Route path="/consent" element={<ConsentPage />} />
 
-  const navigate = (path: string) => {
-    window.history.pushState({}, '', path)
-    setPathname(path)
-  }
-
-  if (pathname === '/consent') {
-    return <ConsentPage onNavigate={navigate} />
-  }
-
-  return <SignInPage onNavigate={navigate} />
+        <Route path="*" element={<Navigate to="/sign-in" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-
-export default App
