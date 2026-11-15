@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import SignInPage from "./pages/SignInPage";
 import ConsentPage from "./pages/ConsentPage";
+import DeveloperRegister from "./pages/DeveloperRegister";
 
 export default function App() {
   return (
@@ -9,7 +10,7 @@ export default function App() {
       <Routes>
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/consent" element={<ConsentPage />} />
-
+        <Route path="/developer-register" element={<DeveloperRegister />} />
         <Route path="*" element={<Navigate to="/sign-in" replace />} />
       </Routes>
     </BrowserRouter>

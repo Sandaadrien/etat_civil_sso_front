@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@better-auth/oauth-provider": "^1.7.23",
+    "@tailwindcss/vite": "^4.3.5",
     "better-auth": "^1.7.23",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.5"
+    "react-router-dom": "^7.18.5",
+    "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

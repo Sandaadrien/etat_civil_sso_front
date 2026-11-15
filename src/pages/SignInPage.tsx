@@ -43,7 +43,7 @@ export default function SignInPage() {
         </div>
 
         <div className="form-heading">
-          <h2>Bienvenu</h2>
+          <h2>Bienvenue</h2>
           <p>Connectez-vous à votre compte citoyen.</p>
         </div>
 
