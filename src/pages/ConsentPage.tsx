@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { authClient } from "../lib/auth-client";
-
+// comments
 const descriptions: Record<string, string> = {
   openid: "Vérifier votre identité",
   profile: "Consulter les informations de votre profil",
